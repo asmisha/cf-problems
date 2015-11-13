@@ -54,19 +54,25 @@ app.controller('init', [
                 else
                     delete f.tags[k]
 
+            ok = false
             for k,i of f.div
                 if i
-                    if v.contest.division*1 != k*1
-                        return false
+                    if v.contest.division*1 == k*1
+                        ok = true
                 else
                     delete f.div[k]
+            if !ok && f.div && Object.keys(f.div).length
+                return false
 
+            ok = false
             for k,i of f.index
                 if i
-                    if v.index != k
-                        return false
+                    if v.index == k
+                        ok = true
                 else
                     delete f.index[k]
+            if !ok && f.index && Object.keys(f.index).length
+                return false
 
             return true
 
