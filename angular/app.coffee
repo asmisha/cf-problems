@@ -1,6 +1,5 @@
 app = angular.module('cf-problems', ['ui.bootstrap'])
 
-
 app.controller('init', [
     '$scope',
     '$filter',
@@ -84,4 +83,66 @@ app.controller('init', [
         )
 
         $scope.filter = {}
+]);
+app.controller('ranking', [
+    '$scope',
+    '$filter',
+    ($scope, $filter)->
+        $scope.contests = window.contests
+        users = {}
+        for k,i of $scope.contests
+            for handle,j of i.results
+                users[handle] = true
+        console.log(users)
+        $scope.users = Object.keys(users);
+
+        $scope.order = [
+            '-total'
+            'handle'
+        ]
+        $scope.sortOptions =
+            'total': 'Total AC'
+            '-total': 'Total AC (reversed)'
+            'handle': 'Handle'
+            '-handle': 'Handle (reversed)'
+
+        $scope.match = (v,i,a)->
+            f = $scope.filter
+
+            ok = false
+            for k,i of f.type
+                if i
+                    if v.contest.division*1 == k*1
+                        ok = true
+                else
+                    delete f.div[k]
+            if !ok && f.div && Object.keys(f.div).length
+                return false
+
+            ok = false
+            for k,i of f.index
+                if i
+                    if v.index == k
+                        ok = true
+                else
+                    delete f.index[k]
+            if !ok && f.index && Object.keys(f.index).length
+                return false
+
+            return true
+
+        $scope.$watch((() -> JSON.stringify($scope.filter) + ' ' + JSON.stringify($scope.order)), () ->
+            begin = (($scope.currentPage - 1) * $scope.numPerPage)
+            end = begin + $scope.numPerPage;
+
+            $scope.orderedUsers = $filter('orderBy')($filter('filter')($scope.problems, $scope.match), $scope.order).slice(begin, end);
+        )
+
+        $scope.$watch((() -> JSON.stringify($scope.filter) + ' ' + JSON.stringify($scope.order)), () ->
+            begin = (($scope.currentPage - 1) * $scope.numPerPage)
+            end = begin + $scope.numPerPage;
+
+            $scope.orderedUsers = $filter('orderBy')($filter('filter')($scope.problems, $scope.match), $scope.order).slice(begin, end);
+        )
+
 ]);
