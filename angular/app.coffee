@@ -74,9 +74,12 @@ app.controller('init', [
             if !ok && f.index && Object.keys(f.index).length
                 return false
 
+            if v.solvedCount > $scope.maxSolvedCount
+                return false
+
             return true
 
-        $scope.$watch((() -> $scope.currentPage + ' ' + $scope.numPerPage + ' ' + $scope.maxSize + ' ' + JSON.stringify($scope.filter) + ' ' + JSON.stringify($scope.order)), () ->
+        $scope.$watch((() -> $scope.currentPage + ' ' + $scope.numPerPage + ' ' + $scope.maxSize + ' ' + $scope.maxSolvedCount + ' ' + JSON.stringify($scope.filter) + ' ' + JSON.stringify($scope.order)), () ->
             begin = (($scope.currentPage - 1) * $scope.numPerPage)
             end = begin + $scope.numPerPage;
 
