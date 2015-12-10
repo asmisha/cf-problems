@@ -70,6 +70,30 @@ foreach ($config['coaches'] as $coach) {
     }
 }
 $contests = array_values($contests);
+
+$cacheFile = __DIR__ . '/cache/handles.json';
+if (!file_exists($cacheFile) || filemtime($cacheFile) < time() - 10 * 60) {
+    $data = file_get_contents($config['handlesURL']);
+    $data = explode("\n", $data);
+    foreach ($data as $k => $h) {
+        $data[$k] = array_slice(explode(',', $h), 1, 3);
+    }
+    $data = array_slice($data, 1);
+    file_put_contents($cacheFile, json_encode($data));
+}else{
+    $data = json_decode(file_get_contents($cacheFile), true);
+}
+
+$handles = array();
+foreach($data as $i){
+    if(!$i[2])
+        continue;
+
+    if($i[0])
+        $handles[strtolower($i[0])] = $i[2];
+    if($i[1])
+        $handles[strtolower($i[1])] = $i[2];
+}
 ?>
 
 <!doctype html>
@@ -95,6 +119,7 @@ $contests = array_values($contests);
 
     <script type="text/javascript">
         var contests = <?php echo json_encode($contests); ?>;
+        var handles = <?php echo json_encode($handles); ?>;
     </script>
 
     <script type="text/javascript" src="bower_components/angular/angular.min.js"></script>

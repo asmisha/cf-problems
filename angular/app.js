@@ -108,8 +108,9 @@
 
   app.controller('ranking', [
     '$scope', '$filter', function($scope, $filter) {
-      var handle, i, j, k, maxSolved, ref, ref1, ref2, ref3, users;
+      var handle, handles, i, j, k, maxSolved, ref, ref1, ref2, ref3, users;
       $scope.contests = window.contests;
+      handles = window.handles;
       users = {};
       ref = $scope.contests;
       for (k in ref) {
@@ -144,12 +145,12 @@
         }
       }
       $scope.users = (function() {
-        var results;
+        var ref4, results;
         results = [];
         for (k in users) {
           i = users[k];
           results.push({
-            handle: k,
+            handle: (ref4 = handles[k.toLowerCase()]) != null ? ref4 : k,
             total: i.total,
             rating: i.rating
           });
