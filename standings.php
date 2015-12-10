@@ -27,11 +27,15 @@ foreach ($files as $file) {
             'total' => $line->find('td.st_total', 0)->plaintext,
         );
     }
+
+    $type = strstr(basename($file), 'practice') === false ? 'training' : 'practice';
     $contests['cbb_' . basename($file, '.html')] = array(
-        'type' => strstr(basename($file), 'practice') === false ? 'training' : 'practice',
+        'type' => $type,
         'info' => basename($file, '.html'),
-        'source' => 'cbb',
-        'results' => $res
+        'source' => 'bsuir',
+        'results' => $res,
+        'date' => filemtime($file),
+        'weight' => $config['weight'][$type],
     );
 }
 
@@ -42,13 +46,17 @@ foreach ($config['coaches'] as $coach) {
             'type' => 'training',
             'info' => "cf {$standings->contest->name}",
             'source' => 'cf',
-            'results' => array()
+            'results' => array(),
+            'date' => $standings->contest->startTimeSeconds,
+            'weight' => $config['weight']['training'],
         );
         $contests["cf_{$contest}_practice"] = array(
             'type' => 'practice',
             'info' => "cf {$standings->contest->name}",
             'source' => 'cf',
-            'results' => array()
+            'results' => array(),
+            'date' => $standings->contest->startTimeSeconds,
+            'weight' => $config['weight']['practice'],
         );
 
         foreach ($standings->rows as $row) {
@@ -61,6 +69,7 @@ foreach ($config['coaches'] as $coach) {
         }
     }
 }
+$contests = array_values($contests);
 ?>
 
 <!doctype html>
@@ -76,7 +85,7 @@ foreach ($config['coaches'] as $coach) {
 
 <head>
     <meta charset="UTF-8">
-    <title>CF problems selector</title>
+    <title>BSUIR Olymp Ranking</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
 
@@ -129,17 +138,32 @@ foreach ($config['coaches'] as $coach) {
                 <label for="exampleInputEmail1">Then by</label>
                 <select ng-model="order[2]" ng-options="k as i for (k,i) in sortOptions"></select>
             </div>
+            <div class="form-group">
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" ng-model="showDates"> Show Dates
+                    </label>
+                </div>
+            </div>
         </form>
     </div>
     <div style="margin-left: 330px;">
-        <table class="table">
+        <table class="table table-bordered">
             <tr>
                 <th>#</th>
-                <th ng-repeat="i in contests">{{i.info}}</th>
+                <th>Total AC</th>
+                <th>Rating</th>
+                <th class="contest-source" ng-repeat="i in contests|filter:contestMatch|orderBy:['date']">
+                    <img src="img/{{i.source}}.png" title="{{i.info}}">
+                    <img src="img/{{i.type}}.png" title="{{i.type}}">
+                    <span ng-show="showDates">{{(i.date*1000)|date:'dd.MM.yyyy'}}</span>
+                </th>
             </tr>
-            <tr ng-repeat="i in users">
-                <td>{{i}}</td>
-                <td ng-repeat="j in contests">{{j.results[i].total}}</td>
+            <tr ng-repeat="i in users|orderBy:order">
+                <td>{{i.handle}}</td>
+                <td>{{i.total}}</td>
+                <td>{{i.rating | number : 3}}</td>
+                <td ng-repeat="j in contests|filter:contestMatch|orderBy:['date']">{{j.results[i.handle].total}}</td>
             </tr>
         </table>
     </div>

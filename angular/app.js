@@ -108,7 +108,7 @@
 
   app.controller('ranking', [
     '$scope', '$filter', function($scope, $filter) {
-      var handle, i, j, k, ref, ref1, users;
+      var handle, i, j, k, maxSolved, ref, ref1, ref2, ref3, users;
       $scope.contests = window.contests;
       users = {};
       ref = $scope.contests;
@@ -117,49 +117,73 @@
         ref1 = i.results;
         for (handle in ref1) {
           j = ref1[handle];
-          users[handle] = true;
+          if (users[handle] == null) {
+            users[handle] = {
+              total: 0,
+              rating: 0
+            };
+          }
+          users[handle].total = users[handle].total * 1 + j.total * 1;
         }
       }
-      console.log(users);
-      $scope.users = Object.keys(users);
-      $scope.order = ['-total', 'handle'];
+      for (k in contests) {
+        i = contests[k];
+        maxSolved = 0;
+        ref2 = i.results;
+        for (handle in ref2) {
+          j = ref2[handle];
+          maxSolved = Math.max(maxSolved, j.total);
+        }
+        if (!maxSolved) {
+          continue;
+        }
+        ref3 = i.results;
+        for (handle in ref3) {
+          j = ref3[handle];
+          users[handle].rating = users[handle].rating * 1 + i.weight * j.total / maxSolved;
+        }
+      }
+      $scope.users = (function() {
+        var results;
+        results = [];
+        for (k in users) {
+          i = users[k];
+          results.push({
+            handle: k,
+            total: i.total,
+            rating: i.rating
+          });
+        }
+        return results;
+      })();
+      $scope.order = ['-rating', '-total', 'handle'];
       $scope.sortOptions = {
+        'rating': 'Rating',
+        '-rating': 'Rating (reversed)',
         'total': 'Total AC',
         '-total': 'Total AC (reversed)',
         'handle': 'Handle',
         '-handle': 'Handle (reversed)'
       };
-      $scope.match = function(v, i, a) {
-        var f, ok, ref2, ref3;
+      $scope.filter = {
+        type: {}
+      };
+      $scope.contestMatch = function(v, i, a) {
+        var f, ok, ref4;
         f = $scope.filter;
         ok = false;
-        ref2 = f.type;
-        for (k in ref2) {
-          i = ref2[k];
+        ref4 = f.type;
+        for (k in ref4) {
+          i = ref4[k];
           if (i) {
-            if (v.contest.division * 1 === k * 1) {
+            if (v.type === k) {
               ok = true;
             }
           } else {
-            delete f.div[k];
+            delete f.type[k];
           }
         }
-        if (!ok && f.div && Object.keys(f.div).length) {
-          return false;
-        }
-        ok = false;
-        ref3 = f.index;
-        for (k in ref3) {
-          i = ref3[k];
-          if (i) {
-            if (v.index === k) {
-              ok = true;
-            }
-          } else {
-            delete f.index[k];
-          }
-        }
-        if (!ok && f.index && Object.keys(f.index).length) {
+        if (!ok && f.type && Object.keys(f.type).length) {
           return false;
         }
         return true;

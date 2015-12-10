@@ -92,41 +92,54 @@ app.controller('ranking', [
         users = {}
         for k,i of $scope.contests
             for handle,j of i.results
-                users[handle] = true
-        console.log(users)
-        $scope.users = Object.keys(users);
+                users[handle] ?=
+                    total: 0
+                    rating: 0
+                users[handle].total = users[handle].total*1 + j.total*1
+
+        for k,i of contests
+            maxSolved = 0
+            for handle,j of i.results
+                maxSolved = Math.max(maxSolved, j.total)
+
+            continue if !maxSolved
+
+            for handle,j of i.results
+                users[handle].rating = users[handle].rating*1 + i.weight * j.total/maxSolved
+
+        $scope.users = ({
+            handle: k
+            total: i.total
+            rating: i.rating
+        } for k,i of users);
 
         $scope.order = [
+            '-rating'
             '-total'
             'handle'
         ]
         $scope.sortOptions =
+            'rating': 'Rating'
+            '-rating': 'Rating (reversed)'
             'total': 'Total AC'
             '-total': 'Total AC (reversed)'
             'handle': 'Handle'
             '-handle': 'Handle (reversed)'
 
-        $scope.match = (v,i,a)->
+        $scope.filter =
+            type: {}
+
+        $scope.contestMatch = (v,i,a)->
             f = $scope.filter
 
             ok = false
             for k,i of f.type
                 if i
-                    if v.contest.division*1 == k*1
+                    if v.type == k
                         ok = true
                 else
-                    delete f.div[k]
-            if !ok && f.div && Object.keys(f.div).length
-                return false
-
-            ok = false
-            for k,i of f.index
-                if i
-                    if v.index == k
-                        ok = true
-                else
-                    delete f.index[k]
-            if !ok && f.index && Object.keys(f.index).length
+                    delete f.type[k]
+            if !ok && f.type && Object.keys(f.type).length
                 return false
 
             return true
