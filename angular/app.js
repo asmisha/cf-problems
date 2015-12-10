@@ -108,7 +108,7 @@
 
   app.controller('ranking', [
     '$scope', '$filter', function($scope, $filter) {
-      var handle, handles, i, j, k, maxSolved, ref, ref1, ref2, ref3, users;
+      var handle, handles, i, j, k, maxSolved, name, ref, ref1, ref2, ref3, ref4, ref5, users;
       $scope.contests = window.contests;
       handles = window.handles;
       users = {};
@@ -118,39 +118,43 @@
         ref1 = i.results;
         for (handle in ref1) {
           j = ref1[handle];
-          if (users[handle] == null) {
-            users[handle] = {
+          name = (ref2 = handles[handle.toLowerCase()]) != null ? ref2 : handle;
+          if (users[name] == null) {
+            users[name] = {
               total: 0,
-              rating: 0
+              rating: 0,
+              handles: {}
             };
           }
-          users[handle].total = users[handle].total * 1 + j.total * 1;
+          users[name].total = users[name].total * 1 + j.total * 1;
+          users[name].handles[handle] = true;
         }
       }
       for (k in contests) {
         i = contests[k];
         maxSolved = 0;
-        ref2 = i.results;
-        for (handle in ref2) {
-          j = ref2[handle];
+        ref3 = i.results;
+        for (handle in ref3) {
+          j = ref3[handle];
           maxSolved = Math.max(maxSolved, j.total);
         }
         if (!maxSolved) {
           continue;
         }
-        ref3 = i.results;
-        for (handle in ref3) {
-          j = ref3[handle];
-          users[handle].rating = users[handle].rating * 1 + i.weight * j.total / maxSolved;
+        ref4 = i.results;
+        for (handle in ref4) {
+          j = ref4[handle];
+          name = (ref5 = handles[handle.toLowerCase()]) != null ? ref5 : handle;
+          users[name].rating = users[name].rating * 1 + i.weight * j.total / maxSolved;
         }
       }
       $scope.users = (function() {
-        var ref4, results;
+        var results;
         results = [];
         for (k in users) {
           i = users[k];
           results.push({
-            handle: (ref4 = handles[k.toLowerCase()]) != null ? ref4 : k,
+            handle: k,
             total: i.total,
             rating: i.rating
           });
@@ -170,12 +174,12 @@
         type: {}
       };
       $scope.contestMatch = function(v, i, a) {
-        var f, ok, ref4;
+        var f, ok, ref6;
         f = $scope.filter;
         ok = false;
-        ref4 = f.type;
-        for (k in ref4) {
-          i = ref4[k];
+        ref6 = f.type;
+        for (k in ref6) {
+          i = ref6[k];
           if (i) {
             if (v.type === k) {
               ok = true;

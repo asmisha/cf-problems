@@ -94,10 +94,13 @@ app.controller('ranking', [
         users = {}
         for k,i of $scope.contests
             for handle,j of i.results
-                users[handle] ?=
+                name = handles[handle.toLowerCase()] ? handle
+                users[name] ?=
                     total: 0
                     rating: 0
-                users[handle].total = users[handle].total*1 + j.total*1
+                    handles: {}
+                users[name].total = users[name].total*1 + j.total*1
+                users[name].handles[handle] = true
 
         for k,i of contests
             maxSolved = 0
@@ -107,10 +110,11 @@ app.controller('ranking', [
             continue if !maxSolved
 
             for handle,j of i.results
-                users[handle].rating = users[handle].rating*1 + i.weight * j.total/maxSolved
+                name = handles[handle.toLowerCase()] ? handle
+                users[name].rating = users[name].rating*1 + i.weight * j.total/maxSolved
 
         $scope.users = ({
-            handle: handles[k.toLowerCase()] ? k
+            handle: k
             total: i.total
             rating: i.rating
         } for k,i of users);
