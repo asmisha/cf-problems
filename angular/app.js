@@ -108,17 +108,19 @@
 
   app.controller('ranking', [
     '$scope', '$filter', function($scope, $filter) {
-      var handle, handles, i, j, k, maxSolved, name, ref, ref1, ref2, ref3, ref4, ref5, users;
+      var handle, handles, i, j, k, maxSolved, name, newResults, ref, ref1, ref2, ref3, ref4, ref5, users;
       $scope.contests = window.contests;
       handles = window.handles;
       users = {};
       ref = $scope.contests;
       for (k in ref) {
         i = ref[k];
+        newResults = {};
         ref1 = i.results;
         for (handle in ref1) {
           j = ref1[handle];
           name = (ref2 = handles[handle.toLowerCase()]) != null ? ref2 : handle;
+          newResults[name] = j;
           if (users[name] == null) {
             users[name] = {
               total: 0,
@@ -129,6 +131,7 @@
           users[name].total = users[name].total * 1 + j.total * 1;
           users[name].handles[handle] = true;
         }
+        i.results = newResults;
       }
       for (k in contests) {
         i = contests[k];
