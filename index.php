@@ -55,7 +55,7 @@ $problems = get('problemset.problems');
 
 <body ng-controller="init">
     <div class="wrapper">
-        <div style="position: fixed;width: 300px;top: 0;left: 0;height: 100%;overflow-y: scroll;padding: 5px;">
+        <div class="ranking-filter">
             <form style="padding:10px;">
                 <div class="form-group">
                     <label for="exampleInputEmail1">Tags</label>

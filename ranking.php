@@ -111,7 +111,7 @@ $contests = array_values($contests);
 
 <body ng-controller="ranking">
 <div class="wrapper">
-    <div style="position: fixed;width: 300px;top: 0;left: 0;height: 100%;overflow-y: scroll;padding: 5px;">
+    <div class="ranking-filter">
         <form style="padding:10px;">
             <div class="form-group">
                 <label for="exampleInputEmail1">Contest Type</label>
@@ -151,6 +151,7 @@ $contests = array_values($contests);
         <table class="table table-bordered">
             <tr>
                 <th>#</th>
+                <th>Handle</th>
                 <th>Total AC</th>
                 <th>Rating</th>
                 <th class="contest-source" ng-repeat="i in contests|filter:contestMatch|orderBy:['date']">
@@ -159,7 +160,8 @@ $contests = array_values($contests);
                     <span ng-show="showDates">{{(i.date*1000)|date:'dd.MM.yyyy'}}</span>
                 </th>
             </tr>
-            <tr ng-repeat="i in users|orderBy:order">
+            <tr ng-repeat="(k,i) in users|orderBy:order">
+                <td>{{k+1}}</td>
                 <td>{{i.handle}}</td>
                 <td>{{i.total}}</td>
                 <td>{{i.rating | number : 3}}</td>
